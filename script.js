@@ -45,7 +45,7 @@ for( var i = 0; i < db.gps.find().length(); i++ ){
 		var time = datetime[2].split("T")[1].split(":");
 
 		var entry = {
-			device_code: Number(data.device_code),
+			device_code: data.device_code,
 			lon: Number(data.lon),
 			lat: Number(data.lat),
             date: ISODate(data.logged_at),
