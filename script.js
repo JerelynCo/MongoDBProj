@@ -31,7 +31,7 @@ SCHEMA: id, device code, lon, lat, logged_at, session_key, build_number, created
 */
 
 /*
-PROPOSED SCHEMA: id, device code, lon, lat, month, hour, date, day 
+PROPOSED SCHEMA: id, device code, lon, lat, month, hour, date, day
 */
 
 var daysOfTheWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -45,17 +45,17 @@ for( var i = 0; i < db.gps.find().length(); i++ ){
 		var time = datetime[2].split("T")[1].split(":");
 
 		var entry = {
-			device_code: data.device_code,
-			lon: data.lon,
-			lat: data.lat,
-			year: datetime[0],
-			month: datetime[1],
-			date: datetime[2].split(":")[0].split("T")[0],
-			hour: time[0],
-			minute: time[1],
-			day: daysOfTheWeek[new Date(data.logged_at).getDay()],
+			device_code: Number(data.device_code),
+			lon: Number(data.lon),
+			lat: Number(data.lat),
+            date: ISODate(data.logged_at),
+            year: Number(datetime[0]),
+			month: Number(datetime[1]),
+			day: Number(datetime[2].split(":")[0].split("T")[0]),
+			hour: Number(time[0]),
+			minute: Number(time[1]),
+			dayOfTheWeek: daysOfTheWeek[new Date(data.logged_at).getDay()],
 		}
 		db.gps_parsed.insert(entry);
 	}
 }
-
