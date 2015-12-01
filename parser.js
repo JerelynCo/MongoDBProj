@@ -81,4 +81,6 @@ for( var i = 0; i < db.gps.find().length(); i++ ){
 	}
 }
 
-print('Finished');
+//Remove entries with zero lon and unidentified city
+db.gps_parsed.remove({lon:0})
+db.gps_parsed.remove({city:""})
