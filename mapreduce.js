@@ -134,6 +134,8 @@ result = db.gps_parsed.mapReduce(map_simple, reduce_simple, {out: "simple"});
 
 
 
+
+
 map_C = function() {
   emit(this._id.city, {count: this.value.count});
 }
@@ -160,6 +162,10 @@ result = db.vehicleCityAverageDay.mapReduce(map_C, reduce_aveDay, {out: 'complex
 
 result = db.vehicleCityAverageHour.mapReduce(map_C, reduce_aveHour, {out: 'complex2'});
 
+map_complex = function(){
+    emit(this._id, {count: this.value.count});
+}
+
 reduce_complex = function(key, values){
     var total = 0;
     for(var i = 0; i < values.length; i++){
@@ -175,6 +181,5 @@ From MongoDB docs:
 Merge the new result with the existing result if the output collection already exists. If an existing document has the same key as the new result, apply the reduce function to both the new and the existing documents and overwrite the existing document with the result.
 */
 
-
-result = db.vehicleCityAverageHour.mapReduce(map_C, reduce_complex, {out: 'complex'});
-result = db.vehicleCityAverageHour.mapReduce(map_C, reduce_complex, {out: {reduce:'complex'}});
+result = db.complex1.mapReduce(map_complex, reduce_complex, {out: 'complex'});
+result = db.complex2.mapReduce(map_complex, reduce_complex, {out: {reduce:'complex'}});
