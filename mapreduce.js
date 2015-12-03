@@ -108,4 +108,73 @@ db.runCommand({
 /*
 	Problem c: Based   on   the   results   of   a)   and   b),   determine   the   city   that   vehicles   travel   the   most.   To   do  this,   perform   a   map   reduce   on   the   collections   of   the    results   above   to   be   stored   in  another   collection.   You   will   be   graded   according   to   how   your   documents   in   this  collection will be structured.
 		format: {_id: {city: city}, value:{average:x}}
+
+
 */
+
+// To determine which city that vehicles travel the most, simply determine how many vehicles travel in the city per hour and also per day of the week.
+
+// Simple Solution
+map_simple = function(){
+    emit(this.city, {count: 1});
+}
+
+reduce_simple = function(key, values){
+    var total = 0;
+    for(var i = 0; i < values.length; i++){
+        total += values[i].count;
+    }
+    return{count: total};
+}
+
+result = db.gps_parsed.mapReduce(map_simple, reduce_simple, {out: "simple"});
+
+// Extremely complex and maybe wrong solution
+// Get the average of the per hour and per day collection
+
+
+
+map_C = function() {
+  emit(this._id.city, {count: this.value.count});
+}
+
+reduce_aveHour = function(key, values){
+    var total = 0;
+    for(var i = 0; i < values.length; i++){
+        total += values[i].count;
+    }
+    return{count: total/24};
+}
+
+
+reduce_aveDay = function(key, values){
+    var total = 0;
+    for(var i = 0; i < values.length; i++){
+        total += values[i].count;
+    }
+    return{count: total/7/24}; // average per day per hour
+}
+
+// MapReduce for the Averages
+result = db.vehicleCityAverageDay.mapReduce(map_C, reduce_aveDay, {out: 'complex1'});
+
+result = db.vehicleCityAverageHour.mapReduce(map_C, reduce_aveHour, {out: 'complex2'});
+
+reduce_complex = function(key, values){
+    var total = 0;
+    for(var i = 0; i < values.length; i++){
+        total += values[i].count;
+    }
+    return{count: total}; // average per day per hour
+}
+
+// sum up the two collections
+/*
+From MongoDB docs:
+{out: reduce: {}}
+Merge the new result with the existing result if the output collection already exists. If an existing document has the same key as the new result, apply the reduce function to both the new and the existing documents and overwrite the existing document with the result.
+*/
+
+
+result = db.vehicleCityAverageHour.mapReduce(map_C, reduce_complex, {out: 'complex'});
+result = db.vehicleCityAverageHour.mapReduce(map_C, reduce_complex, {out: {reduce:'complex'}});
