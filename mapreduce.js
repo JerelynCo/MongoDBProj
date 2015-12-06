@@ -108,8 +108,8 @@ db.runCommand({
 /*
 	Problem c: Based   on   the   results   of   a)   and   b),   determine   the   city   that   vehicles   travel   the   most.   To   do  this,   perform   a   map   reduce   on   the   collections   of   the    results   above   to   be   stored   in  another   collection.   You   will   be   graded   according   to   how   your   documents   in   this  collection will be structured.
 		format: {_id: {city: city}, value:{average:x}}
-
-
+	
+	We have made two solutions to this problem, sir, because we don't understand what's to be solved.
 */
 
 // To determine which city that vehicles travel the most, simply determine how many vehicles travel in the city per hour and also per day of the week.
@@ -129,49 +129,46 @@ reduce_simple = function(key, values){
 
 result = db.gps_parsed.mapReduce(map_simple, reduce_simple, {out: "simple"});
 
-// Extremely complex and maybe wrong solution
-// Get the average of the per hour and per day collection
 
-
-
-
+// complex solution
+// Get the average of the per hour and per day collection and normalize them. Finally add the values together. The highest value is the best
 
 map_C = function() {
-  emit(this._id.city, {count: this.value.count});
+  emit(this._id.city, {ave: this.value.count});
 }
 
 reduce_aveHour = function(key, values){
     var total = 0;
     for(var i = 0; i < values.length; i++){
-        total += values[i].count;
+        total += values[i].ave;
     }
-    return{count: total/24};
+    return{ave: total/24};
 }
 
 
 reduce_aveDay = function(key, values){
     var total = 0;
     for(var i = 0; i < values.length; i++){
-        total += values[i].count;
+        total += values[i].ave;
     }
-    return{count: total/7/24}; // average per day per hour
+    return{ave: total/7/24}; // average per day per hour
 }
 
-// MapReduce for the Averages
+// MapReduce for the Averages 
 result = db.vehicleCityAverageDay.mapReduce(map_C, reduce_aveDay, {out: 'complex1'});
 
 result = db.vehicleCityAverageHour.mapReduce(map_C, reduce_aveHour, {out: 'complex2'});
 
 map_complex = function(){
-    emit(this._id, {count: this.value.count});
+    emit(this._id, {ave: this.value.count});
 }
 
 reduce_complex = function(key, values){
     var total = 0;
     for(var i = 0; i < values.length; i++){
-        total += values[i].count;
+        total += values[i].ave;
     }
-    return{count: total}; // average per day per hour
+    return{aveNorm: total}; // average per day per hour
 }
 
 // sum up the two collections
